@@ -34,7 +34,7 @@ public class SecurityConfig {
         http.cors().and().csrf().disable()
                 .authorizeRequests().antMatchers("/login").permitAll()
                 .and()
-                .authorizeRequests().antMatchers("/api/user/**").permitAll()
+                .authorizeRequests().antMatchers("/api/user/**").permitAll() // permitAll() to test with postman, should be changed to authenticated()
                 .anyRequest().authenticated().and().formLogin()
                 .loginPage("/login").defaultSuccessUrl("/moviesapp").permitAll()
                 .and().httpBasic()
