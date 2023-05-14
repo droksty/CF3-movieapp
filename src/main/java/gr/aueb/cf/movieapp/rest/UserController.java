@@ -4,10 +4,11 @@ import gr.aueb.cf.movieapp.dto.UserDto;
 import gr.aueb.cf.movieapp.model.User;
 import gr.aueb.cf.movieapp.service.IUserService;
 import gr.aueb.cf.movieapp.service.exceptions.EntityNotFoundException;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceAlreadyExistsException;
@@ -26,10 +27,8 @@ public class UserController {
 
     @PostMapping("/user")
     public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
-        UserDto userDto1;
         try {
             User user = userService.registerUser(userDto);
-            userDto1 = entityToDto(user);
         } catch (InstanceAlreadyExistsException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
@@ -45,7 +44,7 @@ public class UserController {
         return new ResponseEntity<>(userList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/addmovie/{imdbID}", method = RequestMethod.PUT)
+    @RequestMapping(value = "user/favorites/{imdbID}", method = RequestMethod.PUT)
     public ResponseEntity<UserDto> addFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
         // User login + User authorization >>>> TBI
         try {
@@ -61,7 +60,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/user/favorites/{username}")
+    @GetMapping("user/favorites/{username}")
     public ResponseEntity<List<String>> getFavorites(@PathVariable("username") String username) {
         // User login + User authorization >>>> TBI
         User loggedUser = userService.getUserByUsername(username);
@@ -69,7 +68,7 @@ public class UserController {
         return new ResponseEntity<>(favorites, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/addmovie/{imdbID}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "user/favorites/{imdbID}", method = RequestMethod.DELETE)
     public ResponseEntity<UserDto> deleteFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
         // User login + User authorization >>>> TBI
         User loggedUser = userService.getUserByUsername(userDto.getUsername());
@@ -77,6 +76,15 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
 
     }
+
+    //Get principal
+    @GetMapping("/user/username")
+    public String getCurrentUsername() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(auth.getName());
+        return auth.getName();
+    }
+
 
     private UserDto entityToDto(User user){
         return new UserDto(user.getId(), user.getUsername(), user.getPassword(), user.getFavoriteList());

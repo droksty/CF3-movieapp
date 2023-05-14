@@ -13,7 +13,7 @@ public interface IUserService {
 //    void addFavoriteMovie(UserDto userDto, String imdbId);
     List<User> getAllUsers();
     User getUserByUsername(String username);
-    User getById(BigInteger id);
+    User getById(String id);
     User updateUser(UserDto dto) throws EntityNotFoundException;
 
 }

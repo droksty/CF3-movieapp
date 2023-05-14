@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class User {
     @Id
-    private BigInteger id;
+    private String id;
     private String username;
     private String password;
     private List<String> favoriteList = new ArrayList<>();
