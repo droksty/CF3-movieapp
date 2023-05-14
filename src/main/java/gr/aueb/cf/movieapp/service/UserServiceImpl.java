@@ -1,5 +1,6 @@
 package gr.aueb.cf.movieapp.service;
 
+import gr.aueb.cf.movieapp.dto.MovieDto;
 import gr.aueb.cf.movieapp.dto.UserDto;
 import gr.aueb.cf.movieapp.model.User;
 import gr.aueb.cf.movieapp.repository.IUserRepository;
@@ -31,12 +32,23 @@ public class UserServiceImpl implements IUserService{
         return iUserRepository.save(dtoToEntity(userDto));
     }
 
-//    @Override
-//    public void addFavoriteMovie(User user, String imdbId) {
-//        User user = iUserRepository.findUserByUsername(dto.getUsername());
-//        user.getFavoriteList().add(imdbId);
-//        iUserRepository.save(user);
-//    }
+    @Override
+    public void addFavoriteMovie(User user, String imdbId) throws InstanceAlreadyExistsException {
+        if (user.getFavoriteList().contains(imdbId)) {
+            throw new InstanceAlreadyExistsException();
+        }
+        user.getFavoriteList().add(imdbId);
+        iUserRepository.save(user);
+    }
+
+    @Override
+    public void removeFavoriteMovie(User user, String imdbId) throws Exception {
+        if (!user.getFavoriteList().contains(imdbId)) {
+            throw new Exception();
+        }
+        user.getFavoriteList().remove(imdbId);
+        iUserRepository.save(user);
+    }
 
     @Override
     public List<User> getAllUsers() {

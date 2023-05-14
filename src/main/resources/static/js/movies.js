@@ -19,6 +19,10 @@ $(document).ready(function() {
     addToFavorites();
   })
 
+  $('#unfavoriteLink').on('click', function() {
+    removeFromFavorites();
+  })
+
   $('#logout').on('click', function() {
     logout();
   })
@@ -53,7 +57,24 @@ function addToFavorites() {
       }
     }
   }
+  xhr.setRequestHeader("Content-Type", "application/json")
+  xhr.send(JSON.stringify({ "imdbID": Object.values(currentMovieObject)[18]}));
+}
 
+function removeFromFavorites() {
+  let xhr = new XMLHttpRequest();
+  xhr.open("DELETE", `http://localhost:8080/api/user/favorites`, true);
+  xhr.timeout = 5000;
+  xhr.ontimeout = (e) => onApiError();
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        console.log("removed from favorites")
+      } else {
+        onApiError();
+      }
+    }
+  }
   xhr.setRequestHeader("Content-Type", "application/json")
   xhr.send(JSON.stringify({ "imdbID": Object.values(currentMovieObject)[18]}));
 }

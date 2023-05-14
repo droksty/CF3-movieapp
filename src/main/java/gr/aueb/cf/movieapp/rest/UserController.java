@@ -54,17 +54,38 @@ public class UserController {
         // User login + User authorization >>>> TBI
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentPrincipalName = authentication.getName();
-        User user = userService.getUserByUsername(currentPrincipalName);
-        UserDto dto = entityToDto(user);
+        User loggedUser = userService.getUserByUsername(currentPrincipalName);
+        UserDto dto = entityToDto(loggedUser);
+        String imdbId = imdbDto.getImdbID();
 
         try {
-            user.addFavorite(imdbDto.getImdbID());
-            userService.updateUser(dto);
-        } catch (InstanceAlreadyExistsException | EntityNotFoundException e) {
+            userService.addFavoriteMovie(loggedUser, imdbId);
+        } catch (InstanceAlreadyExistsException e) {
             throw new RuntimeException(e);
         }
 
-        System.out.println(imdbDto.getImdbID());
+        System.out.println("Movie with id " + imdbDto.getImdbID() + " added to " + loggedUser.getUsername() + "'s favorite list");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "user/favorites", method = RequestMethod.DELETE)
+    public ResponseEntity<UserDto> deleteFavorite(@RequestBody MovieDto imdbDto) {
+
+        // User login + User authorization >>>> TBI
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        User loggeduser = userService.getUserByUsername(currentPrincipalName);
+        UserDto dto = entityToDto(loggeduser);
+        String imdbId = imdbDto.getImdbID();
+
+        try {
+            userService.removeFavoriteMovie(loggeduser, imdbId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Movie with id " + imdbDto.getImdbID() + " was removed from " + loggeduser.getUsername() + "'s favorite list");
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -76,14 +97,7 @@ public class UserController {
         return new ResponseEntity<>(favorites, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/favorites/{imdbID}", method = RequestMethod.DELETE)
-    public ResponseEntity<UserDto> deleteFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
-        // User login + User authorization >>>> TBI
-        User loggedUser = userService.getUserByUsername(userDto.getUsername());
-        loggedUser.removeFavorite(imdbID);
-        return new ResponseEntity<>(HttpStatus.OK);
 
-    }
 
     //Get principal
     @GetMapping("/user/username")
