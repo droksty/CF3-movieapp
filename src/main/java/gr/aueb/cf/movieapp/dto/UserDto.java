@@ -18,8 +18,8 @@ public class UserDto {
     private String id;
     private String username;
 
-    @Size(min = 8, message = "Password must have at least ${min} characters")
-    @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?\\d).*$")
+//    @Size(min = 8, message = "Password must have at least ${min} characters")
+//    @Pattern(regexp = "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?\\d).*$")
     private String password;
 
     private List<String> favoriteMovies;

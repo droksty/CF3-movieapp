@@ -28,6 +28,18 @@ input[type=text].search {
 	padding-left: 45px;
 }
 
+.logout {
+	color: white;
+	text-decoration: none;
+	font-size: 20px;
+	margin-right: 30px;
+}
+
+.logout-div {
+	display: flex;
+	justify-content: end;
+}
+
 #waiting {
 	width: 50px;
 	height: 50px;

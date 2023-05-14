@@ -34,9 +34,9 @@ public class SecurityConfig {
         http.cors().and().csrf().disable()
                 .authorizeRequests().antMatchers("/login").permitAll()
                 .and()
-                .authorizeRequests().antMatchers("/api/user/**").authenticated()
+                .authorizeRequests().antMatchers("/api/user/**").permitAll()
                 .anyRequest().authenticated().and().formLogin()
-                .loginPage("/login").defaultSuccessUrl("/movieapp").permitAll()
+                .loginPage("/login").defaultSuccessUrl("/moviesapp").permitAll()
                 .and().httpBasic()
                 .and()
                 .logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout")).logoutSuccessUrl("/login");

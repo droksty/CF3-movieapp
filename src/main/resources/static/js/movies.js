@@ -14,19 +14,34 @@ $(document).ready(function() {
     onShowMoreClicked();
   })
 
-
-
   // Java Exercise
   $('#favoriteLink').on('click', function() {
     addToFavorites();
   })
+
+  $('#logout').on('click', function() {
+    logout();
+  })
 })
 
+function logout() {
+  window.location.href = "http://localhost:8080/logout"
+  // let xhr = new XMLHttpRequest();
+  // xhr.open("POST",'http://localhost:8080/logout');
+  // xhr.onload = function() {
+  //   if (xhr.status === 200) {
+  //     window.location.href = '/login';
+  //   } else {
+  //     console.log('Logout request failed with status ' + xhr.status);
+  //   }
+  // };
+  // xhr.send();
+}
 
 // Java Exercise
 function addToFavorites() {
   let xhr = new XMLHttpRequest();
-  xhr.open("PUT", `http://localhost:8080/movieapp/add`, true);
+  xhr.open("PUT", `http://localhost:8080/user/favorites/${imdbID}`, true);
   xhr.timeout = 5000;
   xhr.ontimeout = (e) => onApiError();
   xhr.onreadystatechange = function() {
@@ -43,16 +58,20 @@ function addToFavorites() {
   xhr.send(JSON.stringify({ "imdbID": Object.values(currentMovieObject)[18]}));
 }
 
+//
+function getPrincipal() {
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET",'http://localhost:8080/api/user/username');
+  xhr.onload = function() {
+    if (xhr.status === 200) {
+      let username = xhr.responseText;
+    } else {
+      console.log('Request failed with status ' + xhr.status);
+    }
+  };
+  xhr.send();
 
-
-
-
-
-
-
-
-
-
+}
 
 //
 function getMovie(title) {

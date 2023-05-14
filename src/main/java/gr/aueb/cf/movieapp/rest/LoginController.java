@@ -17,12 +17,16 @@ public class LoginController {
         String referer = request.getHeader("Referer");
         request.getSession().setAttribute(CustomAuthenticationSuccessHandler.REDIRECT_URL_SESSION_ATTRIBUTE_NAME,
                 referer);
-
-        return principal == null ? "login" : "redirect:/movieapp";
+        return principal == null ? "login" : "redirect:/moviesapp";
     }
 
     @GetMapping(path = "/")
     String root(Model model, Principal principal, HttpServletRequest request) throws Exception {
-        return principal == null ? "login" : "redirect:/movieapp";
+        return principal == null ? "login" : "redirect:/moviesapp";
+    }
+
+    @GetMapping(path = "/moviesapp")
+    String landingPage() throws Exception {
+        return "index";
     }
 }

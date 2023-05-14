@@ -42,7 +42,8 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         String password = authentication.getCredentials().toString();
 
         //userRepository.isUserValid(username,password)
-        if (Objects.equals(userRepository.findUserByUsername(username).getPassword(), password)) {
+        if (Objects.equals(userRepository.findUserByUsername(username).getPassword(), password) &&
+            userRepository.findUserByUsername(username) != null) {
             return new UsernamePasswordAuthenticationToken(username, password, Collections.<GrantedAuthority>emptyList());
         } else {
             throw new BadCredentialsException(accessor.getMessage("badCredentials"));
