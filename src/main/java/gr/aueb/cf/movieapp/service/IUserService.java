@@ -10,7 +10,8 @@ import java.util.List;
 
 public interface IUserService {
     User registerUser(UserDto userDto) throws InstanceAlreadyExistsException;
-//    void addFavoriteMovie(UserDto userDto, String imdbId);
+
+    //    void addFavoriteMovie(UserDto userDto, String imdbId);
     List<User> getAllUsers();
     User getUserByUsername(String username);
     User getById(String id);

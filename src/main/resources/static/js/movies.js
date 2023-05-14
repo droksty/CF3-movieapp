@@ -41,7 +41,7 @@ function logout() {
 // Java Exercise
 function addToFavorites() {
   let xhr = new XMLHttpRequest();
-  xhr.open("PUT", `http://localhost:8080/user/favorites/${imdbID}`, true);
+  xhr.open("PUT", `http://localhost:8080/api/user/favorites`, true);
   xhr.timeout = 5000;
   xhr.ontimeout = (e) => onApiError();
   xhr.onreadystatechange = function() {

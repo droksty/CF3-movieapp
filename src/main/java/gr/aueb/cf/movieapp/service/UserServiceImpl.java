@@ -5,13 +5,9 @@ import gr.aueb.cf.movieapp.model.User;
 import gr.aueb.cf.movieapp.repository.IUserRepository;
 import gr.aueb.cf.movieapp.service.exceptions.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.management.InstanceAlreadyExistsException;
-import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,7 +32,7 @@ public class UserServiceImpl implements IUserService{
     }
 
 //    @Override
-//    public void addFavoriteMovie(UserDto dto, String imdbId) {
+//    public void addFavoriteMovie(User user, String imdbId) {
 //        User user = iUserRepository.findUserByUsername(dto.getUsername());
 //        user.getFavoriteList().add(imdbId);
 //        iUserRepository.save(user);

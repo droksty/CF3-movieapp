@@ -1,5 +1,7 @@
 package gr.aueb.cf.movieapp.rest;
 
+import com.fasterxml.jackson.core.JsonParser;
+import gr.aueb.cf.movieapp.dto.MovieDto;
 import gr.aueb.cf.movieapp.dto.UserDto;
 import gr.aueb.cf.movieapp.model.User;
 import gr.aueb.cf.movieapp.service.IUserService;
@@ -12,7 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceAlreadyExistsException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -44,19 +48,23 @@ public class UserController {
         return new ResponseEntity<>(userList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/favorites/{imdbID}", method = RequestMethod.PUT)
-    public ResponseEntity<UserDto> addFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
+    @RequestMapping(value = "user/favorites", method = RequestMethod.PUT)
+    public ResponseEntity<UserDto> addFavorite(@RequestBody MovieDto imdbDto) {
+
         // User login + User authorization >>>> TBI
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        User user = userService.getUserByUsername(currentPrincipalName);
+        UserDto dto = entityToDto(user);
+
         try {
-            User loggedUser = userService.getUserByUsername(userDto.getUsername());
-            loggedUser.addFavorite(imdbID);
-            UserDto userDto1 = entityToDto(loggedUser);
-            userService.updateUser(userDto1);
-        } catch (InstanceAlreadyExistsException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            user.addFavorite(imdbDto.getImdbID());
+            userService.updateUser(dto);
+        } catch (InstanceAlreadyExistsException | EntityNotFoundException e) {
+            throw new RuntimeException(e);
         }
+
+        System.out.println(imdbDto.getImdbID());
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
