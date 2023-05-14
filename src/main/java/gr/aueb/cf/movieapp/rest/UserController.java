@@ -45,7 +45,7 @@ public class UserController {
         return new ResponseEntity<>(userList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/addmovie/{imdbID}", method = RequestMethod.PUT)
+    @RequestMapping(value = "user/favorites/{imdbID}", method = RequestMethod.PUT)
     public ResponseEntity<UserDto> addFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
         // User login + User authorization >>>> TBI
         try {

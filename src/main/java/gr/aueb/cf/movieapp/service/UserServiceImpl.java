@@ -57,7 +57,7 @@ public class UserServiceImpl implements IUserService{
     }
 
     @Override
-    public User getById(BigInteger id) {
+    public User getById(String id) {
         return iUserRepository.findUserById(id);
     }
 

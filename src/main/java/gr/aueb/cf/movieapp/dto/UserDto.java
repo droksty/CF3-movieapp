@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserDto {
     @Id
-    private BigInteger id;
+    private String id;
     private String username;
 
     @Size(min = 8, message = "Password must have at least ${min} characters")
