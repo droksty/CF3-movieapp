@@ -1,61 +1,84 @@
 package gr.aueb.cf.movieapp.rest;
 
+import gr.aueb.cf.movieapp.dto.UserDto;
 import gr.aueb.cf.movieapp.model.User;
-import gr.aueb.cf.movieapp.repository.UserRepository;
+import gr.aueb.cf.movieapp.service.IUserService;
+import gr.aueb.cf.movieapp.service.exceptions.EntityNotFoundException;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
+import javax.management.InstanceAlreadyExistsException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/movieapp")
+@RequestMapping("/api")
 public class UserController {
 
     @Autowired
-    private UserRepository userRepository;
+    private final IUserService userService;
 
-
-    @GetMapping("/create")
-    public ResponseEntity<User> createUser() {
-        User newUser = new User("user1", "pass1", new ArrayList<>());
-        User existingUser = userRepository.findUserByUsername(newUser.getUsername());
-
-        if (existingUser != null) {
-            System.out.println("USER ALREADY EXISTS");
-            return new ResponseEntity<>(existingUser, HttpStatus.BAD_REQUEST);
-        }
-
-        userRepository.save(newUser);
-        return new ResponseEntity<>(newUser, HttpStatus.OK);
+    public UserController(IUserService userService){
+        this.userService = userService;
     }
 
-
-    @RequestMapping(value = "/add", method = RequestMethod.PUT)
-    @ResponseBody // ?
-    public ResponseEntity<User> addFavorite(@RequestBody Object imdbID) {
-        // User login + User authorization >>>> TBI
-        User loggedUser = userRepository.findUserByUsername("user1");
-
-        if (loggedUser.getFavoriteList().contains(imdbID)) {
-            System.out.println("Movie already exists in favorites");
+    @PostMapping("/user")
+    public ResponseEntity<User> createUser(@RequestBody UserDto userDto) {
+        UserDto userDto1;
+        try {
+            User user = userService.registerUser(userDto);
+            userDto1 = entityToDto(user);
+        } catch (InstanceAlreadyExistsException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
-        loggedUser.addFavorite(imdbID);
-        User updatedUser = userRepository.save(loggedUser);
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @GetMapping("/favorites")
-    public ResponseEntity<List<Object>> getFavorites() {
+    @GetMapping("/user")
+    public ResponseEntity<List<User>> getAllUsers(){
+        List<User> userList = userService.getAllUsers();
+        if (userList.isEmpty()) {
+            return new ResponseEntity<>(userList, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(userList, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "user/addmovie/{imdbID}", method = RequestMethod.PUT)
+    public ResponseEntity<UserDto> addFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
         // User login + User authorization >>>> TBI
-        User loggedUser = userRepository.findUserByUsername("user1");
-        List<Object> favorites = loggedUser.getFavoriteList();
+        try {
+            User loggedUser = userService.getUserByUsername(userDto.getUsername());
+            loggedUser.addFavorite(imdbID);
+            UserDto userDto1 = entityToDto(loggedUser);
+            userService.updateUser(userDto1);
+        } catch (InstanceAlreadyExistsException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/user/favorites/{username}")
+    public ResponseEntity<List<String>> getFavorites(@PathVariable("username") String username) {
+        // User login + User authorization >>>> TBI
+        User loggedUser = userService.getUserByUsername(username);
+        List<String> favorites = loggedUser.getFavoriteList();
         return new ResponseEntity<>(favorites, HttpStatus.OK);
     }
 
+    @RequestMapping(value = "user/addmovie/{imdbID}", method = RequestMethod.DELETE)
+    public ResponseEntity<UserDto> deleteFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
+        // User login + User authorization >>>> TBI
+        User loggedUser = userService.getUserByUsername(userDto.getUsername());
+        loggedUser.removeFavorite(imdbID);
+        return new ResponseEntity<>(HttpStatus.OK);
 
+    }
+
+    private UserDto entityToDto(User user){
+        return new UserDto(user.getId(), user.getUsername(), user.getPassword(), user.getFavoriteList());
+    }
 }
