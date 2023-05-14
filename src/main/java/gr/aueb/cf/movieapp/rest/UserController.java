@@ -69,7 +69,7 @@ public class UserController {
         return new ResponseEntity<>(favorites, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/addmovie/{imdbID}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "user/favorites/{imdbID}", method = RequestMethod.DELETE)
     public ResponseEntity<UserDto> deleteFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
         // User login + User authorization >>>> TBI
         User loggedUser = userService.getUserByUsername(userDto.getUsername());
