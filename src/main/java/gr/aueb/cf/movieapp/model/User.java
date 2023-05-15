@@ -32,7 +32,7 @@ public class User {
     }
 
     public void addFavorite(String movieID) throws InstanceAlreadyExistsException {
-        if (this.favoriteList.contains((movieID))) {
+        if (this.favoriteList.contains(movieID)) {
             throw new InstanceAlreadyExistsException();
         } else {
             this.favoriteList.add(movieID);

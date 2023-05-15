@@ -1,5 +1,7 @@
 package gr.aueb.cf.movieapp.rest;
 
+import com.fasterxml.jackson.core.JsonParser;
+import gr.aueb.cf.movieapp.dto.MovieDto;
 import gr.aueb.cf.movieapp.dto.UserDto;
 import gr.aueb.cf.movieapp.model.User;
 import gr.aueb.cf.movieapp.service.IUserService;
@@ -12,7 +14,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.management.InstanceAlreadyExistsException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -44,19 +48,44 @@ public class UserController {
         return new ResponseEntity<>(userList, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/favorites/{imdbID}", method = RequestMethod.PUT)
-    public ResponseEntity<UserDto> addFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
+    @RequestMapping(value = "user/favorites", method = RequestMethod.PUT)
+    public ResponseEntity<UserDto> addFavorite(@RequestBody MovieDto imdbDto) {
+
         // User login + User authorization >>>> TBI
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        User loggedUser = userService.getUserByUsername(currentPrincipalName);
+        UserDto dto = entityToDto(loggedUser);
+        String imdbId = imdbDto.getImdbID();
+
         try {
-            User loggedUser = userService.getUserByUsername(userDto.getUsername());
-            loggedUser.addFavorite(imdbID);
-            UserDto userDto1 = entityToDto(loggedUser);
-            userService.updateUser(userDto1);
+            userService.addFavoriteMovie(loggedUser, imdbId);
         } catch (InstanceAlreadyExistsException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        } catch (EntityNotFoundException e) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new RuntimeException(e);
         }
+
+        System.out.println("Movie with id " + imdbDto.getImdbID() + " added to " + loggedUser.getUsername() + "'s favorite list");
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "user/favorites", method = RequestMethod.DELETE)
+    public ResponseEntity<UserDto> deleteFavorite(@RequestBody MovieDto imdbDto) {
+
+        // User login + User authorization >>>> TBI
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        User loggeduser = userService.getUserByUsername(currentPrincipalName);
+        UserDto dto = entityToDto(loggeduser);
+        String imdbId = imdbDto.getImdbID();
+
+        try {
+            userService.removeFavoriteMovie(loggeduser, imdbId);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        System.out.println("Movie with id " + imdbDto.getImdbID() + " was removed from " + loggeduser.getUsername() + "'s favorite list");
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -68,14 +97,7 @@ public class UserController {
         return new ResponseEntity<>(favorites, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "user/favorites/{imdbID}", method = RequestMethod.DELETE)
-    public ResponseEntity<UserDto> deleteFavorite(@RequestBody UserDto userDto, @PathVariable("imdbID") String imdbID) {
-        // User login + User authorization >>>> TBI
-        User loggedUser = userService.getUserByUsername(userDto.getUsername());
-        loggedUser.removeFavorite(imdbID);
-        return new ResponseEntity<>(HttpStatus.OK);
 
-    }
 
     //Get principal
     @GetMapping("/user/username")
