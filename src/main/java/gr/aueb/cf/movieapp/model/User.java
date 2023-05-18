@@ -4,6 +4,7 @@ package gr.aueb.cf.movieapp.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Singular;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -28,7 +29,10 @@ public class User {
         this.password = password;
     }
 
-
+    public User(String username, List<Object> favoriteList) {
+        this.username = username;
+        this.favoriteList = favoriteList;
+    }
     public void addFavorite(Object movieID) {
         if (this.favoriteList.contains((movieID))) {
             System.out.println("Already in favorites");

@@ -35,8 +35,8 @@ public class SecurityConfig {
         httpSecurity
                 .cors().and().csrf().disable()
                 .authorizeRequests().antMatchers("/login").permitAll()
-//                .and()
-//                .authorizeRequests().antMatchers("/signup").permitAll();
+                .and()
+                .authorizeRequests().antMatchers("/signup").permitAll()
                 .and()
                 .authorizeRequests().antMatchers("/movieapp/**").authenticated()
                 .anyRequest().authenticated().and().formLogin()

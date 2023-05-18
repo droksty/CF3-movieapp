@@ -1,16 +1,13 @@
 package gr.aueb.cf.movieapp.service;
 
-import gr.aueb.cf.movieapp.dto.UserDTO;
+import gr.aueb.cf.movieapp.dto.UserCreationDTO;
 import gr.aueb.cf.movieapp.model.User;
 import gr.aueb.cf.movieapp.repository.UserRepository;
-import gr.aueb.cf.movieapp.service.exceptions.UserAlreadyExistsException;
-import gr.aueb.cf.movieapp.service.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -25,20 +22,27 @@ public class UserServiceImpl implements IUserService {
     // Public API
     @Transactional
     @Override
-    public User registerUser(UserDTO userDTO) {
+    public User registerUser(UserCreationDTO userDTO) {
         return userRepository.save(convertToUser(userDTO));
     }
 
 
     @Transactional
     @Override
-    public User addToFavorites(UserDTO userDTO, Object imdbId) {
+    public User addToFavorites(UserCreationDTO userDTO, Object imdbId) {
 
         User user = convertToUser(userDTO);
         user.addFavorite(imdbId);
         userRepository.save(user);
 
         return user;
+    }
+
+    @Override
+    public User updateUser(String username, Object imdbId) {
+        User userToUpdate = getUser(username);
+        userToUpdate.addFavorite(imdbId);
+        return userRepository.save(userToUpdate);
     }
 
 
@@ -61,7 +65,7 @@ public class UserServiceImpl implements IUserService {
 
 
     // Util
-    private User convertToUser(UserDTO userDTO) {
+    private User convertToUser(UserCreationDTO userDTO) {
         return new User(userDTO.getId(), userDTO.getUsername(), userDTO.getPassword(), userDTO.getFavoriteList());
     }
 }
