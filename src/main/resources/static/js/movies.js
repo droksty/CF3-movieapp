@@ -18,6 +18,7 @@ $(document).ready(function() {
 
   // Java Exercise
   $('#favoriteLink').on('click', function() {
+    console.log("TEST CLICK")
     addToFavorites();
   })
 })
@@ -26,7 +27,7 @@ $(document).ready(function() {
 // Java Exercise
 function addToFavorites() {
   let xhr = new XMLHttpRequest();
-  xhr.open("PUT", `http://localhost:8080/movieapp/add`, true);
+  xhr.open("PUT", `http://localhost:8080/movieapp/favorites`, true);
   xhr.timeout = 5000;
   xhr.ontimeout = (e) => onApiError();
   xhr.onreadystatechange = function() {

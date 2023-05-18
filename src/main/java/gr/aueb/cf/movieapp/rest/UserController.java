@@ -9,6 +9,8 @@ import gr.aueb.cf.movieapp.service.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -36,16 +38,19 @@ public class UserController {
     }
 
 
-    @PutMapping(value = "/favorites/{username}")
-    public ResponseEntity<User> addFavorite(@PathVariable String username, @RequestBody Object imdbID) {
+    @PutMapping(value = "/movieapp/favorites")
+    public ResponseEntity<User> addFavorite(@RequestBody Object imdbID) {
 
-        User currentUser = userService.getUser(username);
-        if (currentUser == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentLoggedInUser = userService.getUser(authentication.getName());
+
+        if (currentLoggedInUser == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
         UserDTO currentUserDTO = new UserDTO(
-                currentUser.getId(),
-                currentUser.getUsername(),
-                currentUser.getPassword(),
-                currentUser.getFavoriteList()
+                currentLoggedInUser.getId(),
+                currentLoggedInUser.getUsername(),
+                currentLoggedInUser.getPassword(),
+                currentLoggedInUser.getFavoriteList()
         );
 
         User updatedUser = userService.addToFavorites(currentUserDTO, imdbID);
@@ -53,20 +58,18 @@ public class UserController {
     }
 
 
-    @GetMapping("/favorites")
-    public ResponseEntity<List<Object>> getFavorites(@RequestBody String username) {
+    @GetMapping("/movieapp/favorites")
+    public ResponseEntity<List<Object>> getFavorites() {
 
-        User currentUser = userService.getUser(username);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentLoggedInUser = userService.getUser(authentication.getName());
 
-        List<Object> favorites = userService.getUserFavorites(currentUser.getUsername());
+        if (currentLoggedInUser == null) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        User currentUser = userService.getUser(username);
+
+//        List<Object> favorites = userService.getUserFavorites(currentLoggedInUser.getUsername());
+        List<Object> favorites = currentLoggedInUser.getFavoriteList();
         return new ResponseEntity<>(favorites, HttpStatus.OK);
     }
 
-
-    //
-    @ExceptionHandler(value = UserAlreadyExistsException.class)
-    public ResponseEntity handleUserAlreadyExistsException(UserAlreadyExistsException userAlreadyExistsException) {
-        userAlreadyExistsException.printStackTrace();
-        return new ResponseEntity(userAlreadyExistsException.getMessage(), HttpStatus.CONFLICT);
-    }
 }
